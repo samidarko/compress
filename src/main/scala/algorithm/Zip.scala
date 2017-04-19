@@ -1,4 +1,4 @@
-package algo
+package algorithm
 import java.io._
 import java.nio.file.{Path, Paths}
 import java.util.zip.{ZipEntry, ZipInputStream, ZipOutputStream}
@@ -6,11 +6,11 @@ import java.util.zip.{ZipEntry, ZipInputStream, ZipOutputStream}
 /**
   * Created by vincentdupont on 18/4/17.
   */
-class Zip extends Algo{
+class Zip extends CompressionAlgo{
 
   override def compress(in: File, out: File, size: Int): Unit = {
 
-    val files = Helpers.getListOfFiles(in)
+    val files = FileSystem.getListOfFiles(in)
 
     // TODO test if `out` is directory
     val zip = new ZipOutputStream(new FileOutputStream(out))
@@ -38,9 +38,7 @@ class Zip extends Algo{
       .continually(zis.getNextEntry)
       .takeWhile(_ != null)
       .foreach { entry =>
-        println(out)
         val fileName = entry.getName
-        println(fileName)
         val newFile = new File(out, fileName)
         new File(newFile.getParent).mkdirs()
         if (! fileName.endsWith("/")) {

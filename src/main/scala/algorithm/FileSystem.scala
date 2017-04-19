@@ -1,4 +1,4 @@
-package algo
+package algorithm
 
 /**
   * Created by vincentdupont on 18/4/17.
@@ -6,7 +6,7 @@ package algo
 
 import java.io.File
 
-object Helpers {
+object FileSystem {
 
   def getListOfFiles(d: File): List[File] = {
     if (d.exists && d.isDirectory) {

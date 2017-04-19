@@ -37,4 +37,14 @@ object CommandLine {
 
   def getConfig : Config = Config()
 
+  def checkArgs(config: Config) : Boolean = {
+    if (!config.in.isDirectory) {
+      println("--in argument should be a directory")
+      false
+    } else if (!config.out.isDirectory) {
+      println("--out argument should be a directory")
+      false
+    } else true
+  }
+
 }

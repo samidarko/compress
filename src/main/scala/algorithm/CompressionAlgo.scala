@@ -1,11 +1,11 @@
-package algo
+package algorithm
 
 import java.io.File
 
 /**
   * Created by vincentdupont on 18/4/17.
   */
-trait Algo {
+trait CompressionAlgo {
 
   def compress(in: File, out: File, size: Int) : Unit
 
