@@ -1,6 +1,5 @@
 package algorithm
 import java.io._
-import java.nio.file.{Path, Paths}
 import java.util.zip.{ZipEntry, ZipInputStream, ZipOutputStream}
 
 /**
@@ -8,10 +7,62 @@ import java.util.zip.{ZipEntry, ZipInputStream, ZipOutputStream}
   */
 class Zip extends CompressionAlgo{
 
+  private class ChunkedZippedOutputStream(out: File, chunkSize : Int) {
+
+    // TODO test chunkSize > 0
+
+    private var zipOutputStream : ZipOutputStream = _
+    private var currentSize : Long = 0
+    private var currentChunkIndex : Int = 0
+
+    @throws(classOf[FileNotFoundException])
+    private def constructNewStream() : Unit = {
+      zipOutputStream = new ZipOutputStream(new FileOutputStream(new File(out, constructCurrentPartName)))
+      currentChunkIndex += 1
+      currentSize = 0
+    }
+
+    @throws(classOf[IOException])
+    private def closeStream() : Unit = {
+      zipOutputStream.close()
+    }
+
+    private def constructCurrentPartName : String = {
+      s"archive.part.$currentChunkIndex.zip"
+    }
+
+    @throws(classOf[IOException])
+    def addEntry(zipEntry: ZipEntry) : Unit = {
+      val entrySize = zipEntry.getCompressedSize
+      if ((currentSize + entrySize) > chunkSize) {
+        closeStream()
+        constructNewStream()
+      } else {
+        currentSize += entrySize
+        zipOutputStream.putNextEntry(zipEntry)
+      }
+
+    }
+
+    constructNewStream()
+
+  }
+
   override def compress(in: File, out: File, size: Int): Unit = {
 
     val files = FileSystem.getListOfFiles(in)
 
+    val czos = new ChunkedZippedOutputStream(out, 16)
+
+    files.foreach {
+      file => czos.addEntry(new ZipEntry(file.toString))
+    }
+
+
+  }
+
+  def compressOld(in: File, out: File, size: Int): Unit = {
+    val files = FileSystem.getListOfFiles(in)
     // TODO test if `out` is directory
     val zip = new ZipOutputStream(new FileOutputStream(out))
 
@@ -27,6 +78,7 @@ class Zip extends CompressionAlgo{
       zip.closeEntry()
     }
     zip.close()
+
   }
 
   override def extract(in: File, out: File): Unit = {
