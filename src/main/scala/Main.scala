@@ -2,7 +2,7 @@
   * Created by samidarko on 4/18/17.
   */
 
-import algorithm.Zip
+import algorithms.Zip
 
 object Main {
 

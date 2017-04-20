@@ -1,11 +1,11 @@
-package algorithm
+package algorithms
 import java.io._
 import java.util.zip.{ZipEntry, ZipInputStream, ZipOutputStream}
 
 /**
   * Created by vincentdupont on 18/4/17.
   */
-class Zip extends CompressionAlgo{
+class Zip extends Compression{
 
   private class ChunkedZippedOutputStream(out: File, chunkSize : Int) {
 

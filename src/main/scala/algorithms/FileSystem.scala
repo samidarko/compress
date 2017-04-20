@@ -1,4 +1,4 @@
-package algorithm
+package algorithms
 
 /**
   * Created by vincentdupont on 18/4/17.

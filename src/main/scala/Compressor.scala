@@ -4,9 +4,9 @@
 
 import java.io.File
 
-import algorithm.CompressionAlgo
+import algorithms.Compression
 
-class Compressor(algo: CompressionAlgo) extends CompressionAlgo {
+class Compressor(algo: Compression) extends Compression {
 
   override def compress(in: File, out: File, size: Int): Unit = algo.compress(in, out, size)
 
