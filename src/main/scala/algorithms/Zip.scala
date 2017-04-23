@@ -4,9 +4,9 @@ package algorithms
   * Created by Vincent Dupont on 18/4/17.
   */
 
-import java.io.{File, FileInputStream, FileOutputStream, BufferedInputStream, BufferedOutputStream, IOException}
+import java.io.{File, FileInputStream, FileOutputStream, IOException}
 import java.util.zip.{ZipEntry, ZipInputStream, ZipOutputStream, ZipException}
-import helpers.FileSystem.{splitFile, mergeFiles, getTempFile, getListOfFiles}
+import helpers.FileSystem._
 
 /**
   * A concrete implementation of Compression trait for Zip compression
@@ -42,9 +42,9 @@ class Zip extends Compression {
       val entryName = name.toString.replaceFirst(s"${inputDir.toString}/", "")
       zos.putNextEntry(new ZipEntry(entryName))
 
-      val bis = new BufferedInputStream(new FileInputStream(name))
+      val bis = getBufferedInputStream(name)
 
-      Stream.continually(bis.read).takeWhile(_ > -1).foreach(zos.write)
+      makeStream[Int](bis.read, x => x > -1, zos.write)
 
       bis.close()
       zos.closeEntry()
@@ -69,26 +69,24 @@ class Zip extends Compression {
     assert(inputDir.isDirectory, "inputDir should be a directory")
     assert(outputDir.isDirectory, "outputDir should be a directory")
 
-    val buffer = new Array[Byte](1024)
-
     val inputFile = mergeFiles(inputDir)
     inputFile.deleteOnExit()
 
     val zis = new ZipInputStream(new FileInputStream(inputFile))
 
-    Stream
-      .continually(zis.getNextEntry)
-      .takeWhile(_ != null)
-      .foreach { entry =>
-        val newFile = new File(outputDir, entry.getName)
-        new File(newFile.getParent).mkdirs()
-        val bos = new BufferedOutputStream(new FileOutputStream(newFile))
+    def action(entry : ZipEntry) = {
 
-        Stream.continually(zis.read(buffer))
-          .takeWhile(_ > 0).foreach(count => bos.write(buffer, 0, count))
+      val newFile = new File(outputDir, entry.getName)
+      new File(newFile.getParent).mkdirs()
+      val bos = getBufferedOutputStream(newFile)
 
-        bos.close()
-      }
+      makeStream[Int](zis.read, x => x > 0, bos.write)
+
+      bos.close()
+
+    }
+
+    makeStream[ZipEntry](zis.getNextEntry, x => x != null, action)
 
     zis.closeEntry()
     zis.close()

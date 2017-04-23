@@ -80,19 +80,16 @@ object FileSystem {
 
     var bos = getChunkZipOutputStream(outputDir)
 
-    Stream.continually(bis.read(buffer, 0, bufferSize))
-      .takeWhile(_ > -1)
-      .foreach(count => {
-        if (currentChunkSize == 0) {
-          bos = getChunkZipOutputStream(outputDir)
-          currentChunkSize = chunkSize
-        }
-        bos.write(buffer, 0, count)
-        currentChunkSize -= 1
-      })
+    def action(count : Int) = {
+      if (currentChunkSize == 0) {
+        bos = getChunkZipOutputStream(outputDir)
+        currentChunkSize = chunkSize
+      }
+      bos.write(buffer, 0, count)
+      currentChunkSize -= 1
+    }
 
-    bos.close()
-
+    makeStream[Int](bis.read(buffer, 0, bufferSize), x => x > -1, action)
   }
 
   /**
@@ -116,7 +113,7 @@ object FileSystem {
 
     files.foreach(file => {
       val bis = getBufferedInputStream(file)
-      Stream.continually(bis.read).takeWhile(_ > -1).foreach(bos.write)
+      makeStream[Int](bis.read, x => x > -1, bos.write)
       bis.close()
     })
 
@@ -124,6 +121,16 @@ object FileSystem {
 
     outputFile
 
+  }
+
+  /**
+    * Make a stream (not really a file system helper maybe deserve it owns object)
+    * @param take a function to take from
+    * @param until a function to stop taking
+    * @param action a function to do something with what was taken
+    */
+  def makeStream[A](take: => A, until : A => Boolean, action: A => Unit) : Unit = {
+    Stream.continually(take).takeWhile(until).foreach(action)
   }
 
 }
