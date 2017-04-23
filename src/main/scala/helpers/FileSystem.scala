@@ -8,7 +8,7 @@ import java.io._
 
 object FileSystem {
 
-  def getTempFile: File = File.createTempFile("compressor", ".zip")
+  def getTempFile: File = File.createTempFile("archiver", ".zip")
 
   private val filePrefix = "archive.part."
 
