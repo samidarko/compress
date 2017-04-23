@@ -1,4 +1,4 @@
-name := "compress"
+name := "scalarchiver"
 
 version := "1.0"
 
