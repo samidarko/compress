@@ -11,7 +11,7 @@ Like any [SBT](http://www.scala-sbt.org/) project, please see [here](http://www.
 ## Usage
 
 ```
-> run --help
+> scala scalarchiver.jar --help
 Scalarchiver 0.1.0
 Usage: scalarchiver [compress|extract] [options]
 
