@@ -1,13 +1,17 @@
 package algorithms
 
+/**
+  * Created by Vincent Dupont on 18/4/17.
+  */
+
 import java.io.File
 
 /**
-  * Created by vincentdupont on 18/4/17.
+  * A trait representing the methods of compression algorithm
   */
 trait Compression {
 
-  def compress(in: File, out: File, size: Int) : Unit
+  def compress(inputDir: File, outputDir: File, chunkSize: Int) : Unit
 
-  def extract(in: File, out: File) : Unit
+  def extract(inputDir: File, outputDir: File) : Unit
 }

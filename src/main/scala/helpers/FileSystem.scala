@@ -1,17 +1,25 @@
 package helpers
 
 /**
-  * Created by vincentdupont on 18/4/17.
+  * Created by Vincent Dupont on 18/4/17.
   */
 
 import java.io._
 
+/**
+  * An helper object for manipulating the file system
+  */
 object FileSystem {
 
   def getTempFile: File = File.createTempFile("archiver", ".zip")
 
   private val filePrefix = "archive.part."
 
+  /**
+    * Get a list of files for give directory
+    * @param inputDir input directory
+    * @return List[File]
+    */
   def getListOfFiles(inputDir: File): List[File] = {
 
     assert(inputDir.isDirectory, "inputDir should be a directory")
@@ -23,14 +31,32 @@ object FileSystem {
 
   }
 
+  /**
+    * Get a BufferedOutputStream
+    * @param f a file
+    * @throws java.io.IOException an IO exception
+    * @return BufferedOutputStream
+    */
   @throws(classOf[IOException])
   def getBufferedOutputStream(f: File) : BufferedOutputStream =
     new BufferedOutputStream(new FileOutputStream(f))
 
+  /**
+    * Get a BufferedInputStream
+    * @param f a file
+    * @throws java.io.IOException an IO exception
+    * @return BufferedInputStream
+    */
   @throws(classOf[IOException])
   def getBufferedInputStream(f : File) : BufferedInputStream =
     new BufferedInputStream(new FileInputStream(f))
 
+  /**
+    * Split a file in chunks
+    * @param inputFile an input file
+    * @param outputDir an input directory
+    * @param chunkSize size of a chunk in MB
+    */
   def splitFile(inputFile: File, outputDir: File, chunkSize: Int): Unit = {
 
     assert(inputFile.isFile, "inputFile should be a file")
@@ -69,6 +95,11 @@ object FileSystem {
 
   }
 
+  /**
+    * Merge a list of file into one file
+    * @param inputDir an input directory
+    * @return File
+    */
   def mergeFiles(inputDir: File): File = {
     assert(inputDir.isDirectory, "inputDir should be a directory")
     val files = getListOfFiles(inputDir).foldLeft(List[(File, Int)]()) {

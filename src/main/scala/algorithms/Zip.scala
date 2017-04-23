@@ -1,15 +1,27 @@
 package algorithms
 
+/**
+  * Created by Vincent Dupont on 18/4/17.
+  */
+
 import java.io.{File, FileInputStream, FileOutputStream, BufferedInputStream, BufferedOutputStream, IOException}
 import java.util.zip.{ZipEntry, ZipInputStream, ZipOutputStream, ZipException}
 import helpers.FileSystem.{splitFile, mergeFiles, getTempFile, getListOfFiles}
 
 /**
-  * Created by vincentdupont on 18/4/17.
+  * A concrete implementation of Compression trait for Zip compression
   */
 class Zip extends Compression {
 
 
+  /**
+    * Compress the content of an input directory to an output directory in chunks
+    * @param inputDir an input directory
+    * @param outputDir an output directory
+    * @param chunkSize size of a chunk in MB
+    * @throws java.io.IOException an IO exception
+    * @throws java.util.zip.ZipException an ZipException exception
+    */
   @throws(classOf[IOException])
   @throws(classOf[ZipException])
   def compress(inputDir: File, outputDir: File, chunkSize: Int): Unit = {
@@ -43,6 +55,13 @@ class Zip extends Compression {
     splitFile(tempFile, outputDir, chunkSize)
   }
 
+  /**
+    * Extract the chunks of an input directory to an output directory
+    * @param inputDir an input directory
+    * @param outputDir an output directory
+    * @throws java.io.IOException an IO exception
+    * @throws java.util.zip.ZipException an ZipException exception
+    */
   @throws(classOf[IOException])
   @throws(classOf[ZipException])
   override def extract(inputDir: File, outputDir: File): Unit = {

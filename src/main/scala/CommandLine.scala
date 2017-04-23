@@ -1,8 +1,11 @@
 /**
-  * Created by vincentdupont on 18/4/17.
+  * Created by Vincent Dupont on 18/4/17.
   */
 import java.io.File
 
+/**
+  * An helper object for parsing the command line
+  */
 object CommandLine {
 
   private val currentVersion = "0.1.0"
@@ -15,6 +18,10 @@ object CommandLine {
                      versionNumber: String = "0.1.0",
                      chunkSize: Int = 1)
 
+  /**
+    * Create a command line parser
+    * @return OptionParser
+    */
   def getParser = new scopt.OptionParser[Config]("scalarchiver") {
     head("Scalarchiver", currentVersion)
 
@@ -37,6 +44,10 @@ object CommandLine {
 
   def getConfig : Config = Config()
 
+  /**
+    * Check the arguments given to the command line
+    * @return Boolean
+    */
   def checkArgs(config: Config) : Boolean = {
     if (!config.in.isDirectory) {
       println("--in argument should be a directory")

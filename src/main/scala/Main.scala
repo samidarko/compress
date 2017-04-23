@@ -1,5 +1,5 @@
 /**
-  * Created by samidarko on 4/18/17.
+  * Created by Vincent Dupont on 4/18/17.
   */
 
 import algorithms.Zip
