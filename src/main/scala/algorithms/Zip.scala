@@ -1,34 +1,34 @@
 package algorithms
-import java.io._
-import java.util.zip.{ZipEntry, ZipInputStream, ZipOutputStream}
+
+import java.io.{File, FileInputStream, FileOutputStream, BufferedInputStream, BufferedOutputStream, IOException}
+import java.util.zip.{ZipEntry, ZipInputStream, ZipOutputStream, ZipException}
+import helpers.FileSystem.{splitFile, mergeFiles, getTempFile, getListOfFiles}
 
 /**
   * Created by vincentdupont on 18/4/17.
   */
-class Zip extends Compression{
-
-//  private var currentChunkIndex : Int = 0
-//
-//  private def getChunkName : String = {
-//    val chunkName = s"archive.part.$currentChunkIndex.zip"
-//    currentChunkIndex += 1
-//    chunkName
-//  }
-
-  def compress(in: File, out: File, size: Int): Unit = {
+class Zip extends Compression {
 
 
-//    val bufferSize = 1024 * 1024 * size
-//    val buffer = new Array[Byte](bufferSize)
-//
-    val files = FileSystem.getListOfFiles(in)
+  @throws(classOf[IOException])
+  @throws(classOf[ZipException])
+  def compress(inputDir: File, outputDir: File, chunkSize: Int): Unit = {
 
-//    var zos = new ZipOutputStream(new FileOutputStream(new File(out, getChunkName)))
-    val zos = new ZipOutputStream(new FileOutputStream(new File(out, "archive.zip")))
+    assert(inputDir.isDirectory, "inputDir should be a directory")
+    assert(outputDir.isDirectory, "outputDir should be a directory")
+
+    // List files from input directory
+    val files = getListOfFiles(inputDir)
+
+    val tempFile = getTempFile
+    tempFile.deleteOnExit()
+
+    val zos = new ZipOutputStream(new FileOutputStream(tempFile))
 
     files.foreach { name =>
 
-      zos.putNextEntry(new ZipEntry(name.toString))
+      val entryName = name.toString.replaceFirst(s"${inputDir.toString}/", "")
+      zos.putNextEntry(new ZipEntry(entryName))
 
       val bis = new BufferedInputStream(new FileInputStream(name))
 
@@ -38,26 +38,39 @@ class Zip extends Compression{
       zos.closeEntry()
     }
     zos.close()
+
+    // Split file
+    splitFile(tempFile, outputDir, chunkSize)
   }
 
-  override def extract(in: File, out: File): Unit = {
+  @throws(classOf[IOException])
+  @throws(classOf[ZipException])
+  override def extract(inputDir: File, outputDir: File): Unit = {
+
+    assert(inputDir.isDirectory, "inputDir should be a directory")
+    assert(outputDir.isDirectory, "outputDir should be a directory")
 
     val buffer = new Array[Byte](1024)
 
-    val zis = new ZipInputStream(new FileInputStream(in))
+    val inputFile = mergeFiles(inputDir)
+    inputFile.deleteOnExit()
+
+    val zis = new ZipInputStream(new FileInputStream(inputFile))
+
     Stream
       .continually(zis.getNextEntry)
       .takeWhile(_ != null)
       .foreach { entry =>
-        val newFile = new File(out, entry.getName)
+        val newFile = new File(outputDir, entry.getName)
         new File(newFile.getParent).mkdirs()
-        val fos = new FileOutputStream(newFile)
+        val bos = new BufferedOutputStream(new FileOutputStream(newFile))
 
         Stream.continually(zis.read(buffer))
-          .takeWhile(_ > 0).foreach(len => fos.write(buffer, 0, len))
+          .takeWhile(_ > 0).foreach(count => bos.write(buffer, 0, count))
 
-        fos.close()
+        bos.close()
       }
+
     zis.closeEntry()
     zis.close()
 
